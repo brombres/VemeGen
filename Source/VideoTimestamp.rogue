@@ -1,0 +1,34 @@
+class VideoTimestamp( seconds:Real64 ) [compound]
+  GLOBAL METHODS
+    method create( timestamp:String )->VideoTimestamp
+      while (timestamp.count(':') < 2) timestamp = "0:" + timestamp
+      if (timestamp.count('.') == 0) timestamp += ".000"
+
+      if local parts = timestamp.extract_strings( "$(I):$(I):$(I).$(I)" )
+        while (parts[3].count < 3) parts[3] += '0'
+
+        local h  = parts[0]->Int32
+        local m  = parts[1]->Int32
+        local s  = parts[2]->Int32
+        local ms = parts[3]->Int32
+        return VideoTimestamp( h*3600.0 + m*60.0 + s + ms/1000.0 )
+      else
+        throw Error( "Invalid timestamp: $"(timestamp) )
+      endIf
+
+  METHODS
+    method to->String
+      localize seconds
+
+      local h = (seconds / 3600)->Int32
+      seconds %= 3600
+
+      local m = (seconds / 60)->Int32
+      seconds %= 60
+
+      local s = seconds->Int32
+      local ms = (((seconds - s) * 1000) + 0.5)->Int32
+
+      if (h) return "$:$:$.$"(h,m.format("02"),s.format("02"),ms.format("03"))
+      else   return "$:$.$"(m,s.format("02"),ms.format("03"))
+endClass

@@ -1,0 +1,64 @@
+#================================================================================
+# HitlerReacts.rogue
+# May 25, 2023
+#================================================================================
+
+$define VERSION "1.0"
+$define DATE    "May 25, 2023"
+
+$requireRogue "2.17"
+
+$include SubtitleTiming
+$include TimeSegment
+$include VideoTimestamp
+
+uses Console/CommandLineParser
+uses Bitmap
+uses Bitmap/IO
+
+try
+  #HitlerReacts( System.command_line_arguments )
+  #{
+magick -size 320x85 canvas:none -font Bookman-DemiItalic -pointsize 72 \
+  -draw "text 25,60 \'Magick\'" -channel RGBA -blur 0x6 -fill darkred -stroke magenta \
+  -draw "text 20,55 \'Magick\'" fuzzy-magick.png
+  }#
+catch (error:Error)
+  Console.error.println error
+  System.exit 1
+endTry
+
+class HitlerReacts
+  METHODS
+    method init( args:String[] )
+      local command = parse_args( args )
+
+      trace command
+      # has //options and possibly //args
+
+      if (command//options//help)
+        print_usage
+        System.exit 0
+      endIf
+
+    method parse_args( args:String[] )->Value
+      local command = CommandLineParser().
+      [
+        option( "--flag",     &alias="-f" )
+        option( "--help",     &aliases=["-h","-?"] )
+        option( "--setting=", &alias="-s" )
+      ].parse( args )
+      return command
+
+    method print_usage
+      println "HitlerReacts v$"(VERSION)
+      println "$"(DATE)
+      println
+
+      println @|USAGE
+               |  hitlerreacts [OPTIONS]
+               |
+               |OPTIONS
+               |  --help, -h, -?
+               |    Show this help text.
+endClass
