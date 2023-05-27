@@ -1,5 +1,5 @@
 #================================================================================
-# VemeGen.rogue
+# Vemaker.rogue
 # May 25, 2023
 #================================================================================
 
@@ -19,7 +19,7 @@ uses Bitmap
 uses Bitmap/IO
 
 try
-  VemeGen( System.command_line_arguments )
+  Vemaker( System.command_line_arguments )
 
   #{
   System.run @|magick -size 1280x720 canvas:#444 -font Arial -pointsize 48 \
@@ -43,7 +43,7 @@ catch (error:Error)
   System.exit 1
 endTry
 
-class VemeGen
+class Vemaker
   PROPERTIES
     video_file : File
     frame_size : XY
@@ -189,12 +189,12 @@ class VemeGen
       return command
 
     method print_usage
-      println "VemeGen v$"(VERSION)
+      println "Vemaker v$"(VERSION)
       println "$ by Brom Bresenham"(DATE)
       println
 
       println @|USAGE
-               |  vemegen [OPTIONS] <ScriptName>
+               |  vemaker [OPTIONS] <ScriptName>
                |
                |OPTIONS
                |  --help, -h, -?
