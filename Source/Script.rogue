@@ -2,137 +2,170 @@ class Script
   PROPERTIES
     filepath  : String
     subtitles = String[]
+    type      : String
 
   METHODS
-    method init( filepath )
+    method init( filepath, type_option:String )
       if (not File(filepath).exists)
         if (not filepath.ends_with(".txt",&ignore_case)) filepath += ".txt"
       endIf
 
       local file = File( filepath )
       if (file.exists)
+        println "Reading script '$'"(file)
         forEach (line in LineReader(file))
           line .= trimmed
+
           if (line == "" or line.begins_with('#')) nextIteration
-          if (line.contains( ':' )) subtitles.add( line.after_first(':') )
-          else                      subtitles.add( line )
+
+          if (line.begins_with("type "))
+            type = line.after_first(' ').trimmed
+          elseIf (line.contains( ':' ))
+            subtitles.add( line.after_first(':') )
+          else
+            subtitles.add( line )
+          endIf
         endForEach
 
-        if (subtitles.count != 49)
-          throw Error( "Invalid script - expected 49 lines, found $."(subtitles.count) )
+        if (type_option and type and type_option != type)
+          throw Error( "[Error] Veme type mismatch; command line specifies '--type=$' but script specifies 'type $'."(type_option,type) )
         endIf
 
+        if (not type) type = type_option
+        if (not type) type = "HitlerReacts"
+
       else
-        println "Creating script file '$'."(filepath)
+        println "Creating script '$'"(filepath)
+        type = "HitlerReacts"
         local script =
-          @|SPEAKER: 1
+          @|type HitlerReacts
            |
-           |SPEAKER: 2
+           |OFFICER 1: *starts status update* (a man enters the room)
            |
-           |SPEAKER: 3
+           |OFFICER 1: *status update* (sea of faces)
            |
-           |SPEAKER: 4
+           |OFFICER 1: *status update* (points near Berlin on map)
            |
-           |SPEAKER: 5
+           |OFFICER 1: *status update* (Hitler watches)
            |
-           |SPEAKER: 6
+           |OFFICER 1: *points at map* *concludes status update*
            |
-           |SPEAKER: 7
+           |HITLER: *gestures* *dismisses concern*
            |
-           |SPEAKER: 8
+           |HITLER: *gestures* *dismisses concern*
            |
-           |SPEAKER: 9
+           |# Concerned officers hesitate to speak
            |
-           |SPEAKER: 10
+           |OFFICER 1: My Fuhrer...
            |
-           |SPEAKER: 11
+           |OFFICER 1: Steiner...
            |
-           |SPEAKER: 12
+           |OFFICER 2: (interjecting) *no help is coming*
            |
-           |SPEAKER: 13
+           |OFFICER 2: (camera behind Hitler) *situation is FUBAR*
            |
-           |SPEAKER: 14
+           |# Long pause by Hitler as his rage builds. He takes off his reading glasses.
            |
-           |SPEAKER: 15
+           |HITLER: Everyone except XYZ leave the room.
            |
-           |SPEAKER: 16
+           |# Most officers leave.
            |
-           |SPEAKER: 17
+           |HITLER: *rage builds*
            |
-           |SPEAKER: 18
+           |HITLER: *rage builds* *shakes fistful of map pencils*
            |
-           |SPEAKER: 19
+           |HITLER: *rages* (cut to people listening outside door)
            |
-           |SPEAKER: 20
+           |HITLER: *rages* (people listening outside)
            |
-           |SPEAKER: 21
+           |HITLER: *rages* (woman crying)
            |
-           |SPEAKER: 22
+           |HITLER: *rages* (cut back to Hitler)
            |
-           |SPEAKER: 23
+           |HITLER: *rages* *stands up*
            |
-           |SPEAKER: 24
+           |HITLER: *rages at officer*
            |
-           |SPEAKER: 25
+           |OFFICER 1: *speaks defensively*
            |
-           |SPEAKER: 26
+           |HITLER: *not having it*
            |
-           |SPEAKER: 27
+           |OFFICER 1: Mein Fuhrer, *begs and explains*
            |
-           |SPEAKER: 28
+           |HITLER: *not having it* *rages* *throws pencils down*
            |
-           |SPEAKER: 29
+           |HITLER: *starts pacing* *rages*
            |
-           |SPEAKER: 30
+           |HITLER: *new rage starts building*
            |
-           |SPEAKER: 31
+           |HITLER: *ragesplain*
            |
-           |SPEAKER: 32
+           |HITLER: *ragesplain*
            |
-           |SPEAKER: 33
+           |HITLER: (cut to listeners; women crying) *ragesplain*
            |
-           |SPEAKER: 34
+           |HITLER: (concerned woman approaches) *ragesplain* (cut back to Hitler) *pounds table*
            |
-           |SPEAKER: 35
+           |HITLER: *rages* *makes grasping gesture* *shakes clenched fist*
            |
-           |SPEAKER: 36
+           |HITLER: *rages low but intense* *runs out of steam and sits down*
            |
-           |SPEAKER: 37
+           |HITLER: *wearily explains*
            |
-           |SPEAKER: 38
+           |HITLER: *wearily explains* *beats his chest*
            |
-           |SPEAKER: 39
+           |HITLER: *explains* *raises clenched fists* *takes a weary look around*
            |
-           |SPEAKER: 40
+           |HITLER: *starts speaking again* (officers look at one another uncomfortably)
            |
-           |SPEAKER: 41
+           |HITLER: (side profile) *barks words at officers* *despairs*
            |
-           |SPEAKER: 42
+           |HITLER: (officers watch Hitler, who's now hunched over to the side) *despairs*
            |
-           |SPEAKER: 43
+           |HITLER: *looks up* *barks a few words*
            |
-           |SPEAKER: 44
+           |HITLER: *looks at ground* *barks words*
            |
-           |SPEAKER: 45
+           |HITLER: *looks around accusingly* *rages*
            |
-           |SPEAKER: 46
+           |WOMAN: *comforts companion*
            |
-           |SPEAKER: 47
+           |HITLER: *speaks quietly* *defeated*
            |
-           |SPEAKER: 48
+           |HITLER: *speaks quietly*
            |
-           |SPEAKER: 49
+           |HITLER: *speaks a few quiet words* *resigned* (officers look at one another uncomfortably)
+           |
+           |HITLER: *speaks quietly* *head down*
+           |
+           |HITLER: *looks up to the side* *speaks resignedly*
+           |
+           |HITLER: *speaks resignedly*
+           |
+           |HITLER: *bows head* *final words*
            |
         file.save( script )
-        init( filepath )
+        init( filepath, type )
       endIf
+
+    method count->Int32
+      return subtitles.count
+
+    method get( index:Int32 )->String
+      return subtitles[index]
 
     method to->String
       local result = String()
       result.println (forEach in subtitles)
       return result
 
-      #ffmpeg -i H.mp4 -i Test.png -i Test2.png -filter_complex_script ffmpeg_script.txt -map "[v2]" -map 0:a output.mp4
+      #ffmpeg -i files.txt -filter_complex_script ffmpeg_script.txt -map "[v2]" -map 0:a output.mp4
+      #ffmpeg -i files.txt -filter_complex_script ffmpeg_script.txt -map "[v2]" -map 0:a output.mp4
+
+      #movie=1.png[i1];
+      #movie=2.png[i2];
+      #[0][i1] overlay=0:0:enable='between(t,1,3)'[v1];
+      #[v1][i2] overlay=0:0:enable='between(t,5,7)'[v2]
 
       # ffmpeg_script.txt
       #[0][1] overlay=0:0:enable='between(t,0,5)'[v1];

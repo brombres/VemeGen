@@ -5,8 +5,7 @@ class SubtitleTiming [singleton]
         case "HitlerReacts"
           return hitler_reacts
         others
-          trace "[INTERNAL ERROR]"
-          throw UnsupportedOperationError()
+          throw Error( "[Error] Script specifies non-existent veme type '$'."(type_name) )
       endWhich
 
   PROPERTIES
@@ -17,7 +16,7 @@ class SubtitleTiming [singleton]
       TimeSegment( "0:05.65", "0:07.50" ),
       TimeSegment( "0:08.00", "0:12.00" ),
       TimeSegment( "0:12.90", "0:15.50" ),
-      TimeSegment( "0:17.50", "0:19.00" ),
+      TimeSegment( "0:17.50", "0:18.90" ),
       TimeSegment( "0:19.00", "0:21.50" ),
       TimeSegment( "0:24.75", "0:26.50" ),
       TimeSegment( "0:27.50", "0:28.50" ),
@@ -30,15 +29,15 @@ class SubtitleTiming [singleton]
       TimeSegment( "1:25.25", "1:28.00" ),
       TimeSegment( "1:29.25", "1:31.00" ),
       TimeSegment( "1:31.50", "1:34.00" ),
-      TimeSegment( "1:34.75", "1:37.75" ),
-      TimeSegment( "1:37.50", "1:40.50" ),
-      TimeSegment( "1:40.50", "1:42.75" ),
+      TimeSegment( "1:34.75", "1:37.40" ),
+      TimeSegment( "1:37.50", "1:40.40" ),
+      TimeSegment( "1:40.50", "1:42.65" ),
       TimeSegment( "1:42.75", "1:46.25" ),
-      TimeSegment( "1:46.50", "1:48.79" ),
+      TimeSegment( "1:46.50", "1:48.69" ),
       TimeSegment( "1:48.79", "1:52.00" ),
       TimeSegment( "1:53.00", "1:54.50" ),
-      TimeSegment( "1:56.00", "1:57.75" ),
-      TimeSegment( "1:57.75", "2:00.50" ),
+      TimeSegment( "1:56.00", "1:57.65" ),
+      TimeSegment( "1:57.75", "2:00.40" ),
       TimeSegment( "2:00.50", "2:03.50" ),
       TimeSegment( "2:04.50", "2:08.00" ),
       TimeSegment( "2:08.75", "2:13.50" ),
