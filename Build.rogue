@@ -49,25 +49,6 @@ routine rogo_default
   rogo_run
 endRoutine
 
-routine install_media
-  File( "Build" ).create_folder
-
-  local video_file = File( System.executable_filepath ) / "HitlersRage.mp4"
-
-  if (not video_file.exists)
-    println
-    println @|Download "Hitler's Rage - Downfall video with no subtitles" from YouTube.
-    println "YouTube link:            https://youtu.be/YHtSUcw4q4M"
-    println "YouTube downloader link: https://www.y2mate.com/youtube/YHtSUcw4q4M"
-    println
-    println "Drag and drop the video onto this window or paste the file location here:"
-    local filepath = Console.input( "> " )
-    if (not src_file.exists)
-      throw Error( "File not found: $"(src_file) )
-    endIf
-  endIf
-endRoutine
-
 routine rogo_run
   # Runs this project.
   execute exe_file.esc
@@ -101,7 +82,6 @@ routine rogo_build
     endIf
     compile_c
   endIf
-  install_media
 endRoutine
 
 routine rogo_build_debug
@@ -118,7 +98,6 @@ routine rogo_rebuild
   # Force-rebuilds project.
   compile_rogue
   compile_c
-  install_media
 endRoutine
 
 routine rogo_rebuild_debug

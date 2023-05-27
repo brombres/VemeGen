@@ -8,6 +8,7 @@ $define DATE    "May 25, 2023"
 
 $requireRogue "2.17"
 
+$include IMFont
 $include SubtitleTiming
 $include TimeSegment
 $include VideoTimestamp
@@ -17,23 +18,45 @@ uses Bitmap
 uses Bitmap/IO
 
 try
-  #HitlerReacts( System.command_line_arguments )
+  HitlerReacts( System.command_line_arguments )
+
   #{
-magick -size 320x85 canvas:none -font Bookman-DemiItalic -pointsize 72 \
-  -draw "text 25,60 \'Magick\'" -channel RGBA -blur 0x6 -fill darkred -stroke magenta \
-  -draw "text 20,55 \'Magick\'" fuzzy-magick.png
+  System.run @|magick -size 1280x720 canvas:#444 -font Arial -pointsize 48 \
+              |  -gravity center \
+              |  -draw "text 0,270 \'Magick\'" -channel RGBA -blur 6x8 -fill black -stroke black \
+              |  -fill white -stroke white -draw "text 0,265 \'Magick\'" \
+              |  test.png
   }#
+
+  #{
+  System.run @|magick -font Arial -pointsize 48 -verbose \
+              |  label:'This is great news. I am confident I got at least a 3.' \
+              |  test.png
+  }#
+
+              #|  png:- > /dev/null
+
+              #System.run @|imgcat test.png
 catch (error:Error)
   Console.error.println error
   System.exit 1
 endTry
 
 class HitlerReacts
+  PROPERTIES
+    video_file : File
+    frame_size : XY
+
   METHODS
     method init( args:String[] )
+      install_media
+      #trace frame_size
+
+      #@trace font.measure( ''Eat at "Joe's"'' )
+
       local command = parse_args( args )
 
-      trace command
+      #trace command
       # has //options and possibly //args
 
       if (command//options//help)
@@ -41,18 +64,61 @@ class HitlerReacts
         System.exit 0
       endIf
 
+      local font = IMFont( "Arial", (48*frame_size.y)/720 )
+      font.create_subtitled_frame( frame_size, ''Eat at "Joe's".'', File("Test.png") )
+      #font.create_subtitled_frame( frame_size, ''"Test'ing"'', File("Test.png") )
+
+      System.run @|imgcat test.png
+
+    method frame_size->XY
+      if (@frame_size.min > 0) return @frame_size
+
+      local cmd = "ffprobe -v error -select_streams v -show_entries stream=width,height -of json $"(video_file.esc)
+      local result = Process.run( cmd, &env )
+      if (result.success)
+        local info = JSON.parse( result->String )
+        if (info//streams.count)
+          local w = info//streams[0]//width->Int32
+          local h = info//streams[0]//height->Int32
+          @frame_size = XY( w, h )
+          return @frame_size
+        endIf
+      endIf
+      throw Error( "[ERROR] Could not determine size of '$'."(video_file) )
+
+    method install_media
+      video_file = File(System.executable_filepath).parent / "HitlersRage.mp4"
+
+      if (not video_file.exists)
+        println
+        println @|Download "Hitler's Rage - Downfall video with no subtitles" from YouTube.
+        println "YouTube link:            https://youtu.be/YHtSUcw4q4M"
+        println "YouTube downloader link: https://www.y2mate.com/youtube/YHtSUcw4q4M"
+        println
+        println "Drag and drop the video onto this window or paste the file location here:"
+        local filepath = Console.input( "> " )
+        local src_file = File( filepath.trimmed.unescaped )
+        if (not src_file.exists)
+          throw Error( "File not found: [$]"(src_file) )
+        endIf
+
+        local cmd = "cp $ $"(src_file.esc,video_file.esc)
+        println "> $"(cmd)
+        System.run( cmd )
+      endIf
+
     method parse_args( args:String[] )->Value
       local command = CommandLineParser().
       [
-        option( "--flag",     &alias="-f" )
+        #option( "--flag",     &alias="-f" )
         option( "--help",     &aliases=["-h","-?"] )
-        option( "--setting=", &alias="-s" )
+        #option( "--setting=", &alias="-s" )
       ].parse( args )
       return command
 
     method print_usage
       println "HitlerReacts v$"(VERSION)
-      println "$"(DATE)
+      println "$ by Brom Bresenham"(DATE)
       println
 
       println @|USAGE
@@ -61,4 +127,5 @@ class HitlerReacts
                |OPTIONS
                |  --help, -h, -?
                |    Show this help text.
+
 endClass
