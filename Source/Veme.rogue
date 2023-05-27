@@ -1,5 +1,5 @@
 #================================================================================
-# HitlerReacts.rogue
+# Veme.rogue
 # May 25, 2023
 #================================================================================
 
@@ -19,7 +19,7 @@ uses Bitmap
 uses Bitmap/IO
 
 try
-  HitlerReacts( System.command_line_arguments )
+  Veme( System.command_line_arguments )
 
   #{
   System.run @|magick -size 1280x720 canvas:#444 -font Arial -pointsize 48 \
@@ -43,10 +43,11 @@ catch (error:Error)
   System.exit 1
 endTry
 
-class HitlerReacts
+class Veme
   PROPERTIES
     video_file : File
     frame_size : XY
+    type       = "HitlerReacts"
 
   METHODS
     method init( args:String[] )
@@ -58,18 +59,28 @@ class HitlerReacts
 
       local command = parse_args( args )
 
-      #trace command
-      # has //options and possibly //args
+      if (command//options//type)
+        type = command//options//type
+        which (type)
+          case "HitlerReacts"
+            noAction
+          others
+            throw Error( "[Error] Unsupported veme type '$'."(type) )
+        endWhich
+      endIf
 
-      #{
       if (command//options//help or command//args.count != 1)
         print_usage
         System.exit 0
       endIf
-      }#
 
-      #local script = Script( command//args[0] )
+      #local script = Script( command//args[0] ) #, type )
       #println script
+
+      #local timing = SubtitleTiming[ type ]
+      #trace timing
+      #trace command
+      # has //options and possibly //args
 
       #local font = IMFont( "Arial", (48*frame_size.y)/720 )
       #font.create_subtitled_frame( frame_size, "Now is the time for all good men to come to the aid of their country.", File("Test.png") )
@@ -116,28 +127,31 @@ class HitlerReacts
     method parse_args( args:String[] )->Value
       local command = CommandLineParser().
       [
-        option( "--help",     &aliases=["-h","-?"] )
-        #option( "--setting=", &alias="-s" )
+        option( "--help",  &aliases=["-h","-?"] )
+        option( "--type=", &alias="-t" )
       ].parse( args )
       return command
 
     method print_usage
-      println "HitlerReacts v$"(VERSION)
+      println "Veme v$"(VERSION)
       println "$ by Brom Bresenham"(DATE)
       println
 
       println @|USAGE
-               |  hitlerreacts <ScriptName>
+               |  veme [OPTIONS] <ScriptName>
                |
                |OPTIONS
                |  --help, -h, -?
                |    Show this help text.
                |
+               |  --type=<VemeType>, -t <VemeType>
+               |    'HitlerReacts' the currently the only supported type.
+               |
                |DESCRIPTION
                |  If the specified script file does not exist then it is created with
                |  placeholder dialog.
                |
-               |  If it does exist, a "Hitler Reacts" video is created using subtitles from the
-               |  specified script file and the filename 'ScriptName.mp4'.
+               |  If the script does exist, a video meme is created using subtitles from the
+               |  script file. The output veme filename is 'ScriptName.mp4'.
 
 endClass

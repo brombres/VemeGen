@@ -1,6 +1,16 @@
-class SubtitleTiming
-  GLOBAL PROPERTIES
-    segments = TimeSegment[]...
+class SubtitleTiming [singleton]
+  METHODS
+    method get( type_name:String )->TimeSegment[]
+      which (type_name)
+        case "HitlerReacts"
+          return hitler_reacts
+        others
+          trace "[INTERNAL ERROR]"
+          throw UnsupportedOperationError()
+      endWhich
+
+  PROPERTIES
+    hitler_reacts = TimeSegment[]...
     [
       TimeSegment( "0:00.50", "0:03.25" ),
       TimeSegment( "0:04.00", "0:05.50" ),

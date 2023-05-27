@@ -1,4 +1,4 @@
-# HitlerReacts
+# Veme
 Command-line tool to generate Hitler Reacts videos from a customizable script
 
 About     | Current Release
