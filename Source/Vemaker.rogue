@@ -103,12 +103,16 @@ class Vemaker
 
       local font = IMFont( "Arial", (48*frame_size.y)/720 )
       local ffmpeg_script = (work_folder / "ffmpeg_script.txt").print_writer
+      print "Generating $ subtitles"(script.count)
+      flush
       forEach (sub_index in 0..<script.count)
-        println "Generating subtitle $/$"(sub_index+1,script.count)
+        print '.'
+        flush
         font.create_subtitled_frame( frame_size, script[sub_index], File(work_folder/(sub_index+".png")) )
 
         ffmpeg_script.println "movie=$/$.png[i$];"(work_folder,sub_index,sub_index)
       endForEach
+      println
 
       local prev = "0"
       forEach (sub_index in 0..<script.count)
