@@ -1,9 +1,16 @@
 class IMFont( name:String, point_size:Int32 )
+  PROPERTIES
+    character_sizes = [String:XY]
+
   METHODS
     method create_subtitled_frame( frame_size:XY, subtitle:String, outfile:File )
-      local line_height = measure( subtitle ).y
+      local line_height = measure( "Tj" ).y
+
+      subtitle = word_wrap( subtitle, frame_size.x * 0.9, &even )
       local subtitle_height = measure( subtitle ).y
+
       local origin_y = frame_size.y/2 - (line_height + (subtitle_height/2))
+      #local origin_y = frame_size.y/2 - (line_height + (subtitle_height*0))
 
       local cmd = @|magick -size $FRAME_SIZE canvas:none -font $FONT -pointsize $POINT_SIZE -gravity center \
                    |  -draw "text $SHADOW_ORIGIN \'$TEXT\'" -channel RGBA -blur 6x8 -fill black -stroke black \
@@ -20,16 +27,117 @@ class IMFont( name:String, point_size:Int32 )
         throw Error( ''[Error] Failed to create subtitle frame "$".''(subtitle) )
       endIf
 
-    method measure( text:String )->XY
+    method measure( text:String, i1=0:Int32, i2=null:Int32? )->XY
+      i1 .= clamped( 0, text.count-1 )
+
+      if (i2) i2 = i2.value.clamped( 0, text.count - 1)
+      else    i2 = text.count - 1
+
+      if (i1 > i2.value) return XY(0,0)
+
+      text .= substring( i1, (i2.value-i1)+1 )
+      if (text.count == 1)
+        local entry = character_sizes.find( text )
+        if (entry) return entry.value
+      endIf
+
+      local og_text = text
+
+      if (text.begins_with(' ')) text = '\\' + text
+
       text .= replacing( "\"", "\\\"" )
+
       local cmd = ''magick -font $ -pointsize $ -verbose label:"$" png:- > /dev/null''(name,point_size,text)
       local result = Process.run( cmd, &env )
       if (result.success)
         local dims = result->String.after_first("LABEL ").before_first(' ').split('x')
         if (dims.count == 2)
-          return XY( dims[0]->Int32, dims[1]->Int32 )
+          local size = XY( dims[0]->Int32, dims[1]->Int32 )
+          if (og_text.count == 1) character_sizes[og_text] = size
+          return size
         endIf
       endIf
 
       throw Error( "[Error] Failed to determine text size using ImageMagick: $"(result) )
+
+    method word_wrap( text:String, pixel_width:Int32, buffer=null:String, &even )->String
+      # Prints a word-wrapped version of the given string into an optional
+      # String buffer. Existing newline characters will cause a new line to
+      # begin immediately. Spaces immediately following existing newline
+      # characters are preserved.
+      #
+      # If &even is specified, the wrap width is dynamically reduced so that all
+      # lines are approximately the same size (an "even" width).
+      if (even)
+        use builder = StringPool
+          local line_count = word_wrap( text, pixel_width, builder ).count( '\n' ) + 1
+          pixel_width = word_wrap_find_even_width( text, pixel_width/2, pixel_width, line_count )
+        endUse
+      endIf
+
+      ensure<<buffer>>( (text.count * 1.1)->Int32 )
+
+      local i1, i2 : Int32
+      local len = text.count
+      local w = 0.0
+
+      if (text == "" or pixel_width <= 0) return buffer
+
+      local needs_newline = false
+      local starting_i2 = i2
+      while (i2 < len)
+        starting_i2 = i2
+
+        # find last space or first \n
+        while (w <= pixel_width and i2 < len and text[i2] != '\n')
+          w += measure( text, i2, i2 ).x
+          i2++
+        endWhile
+
+        local initial_i2 = i2
+
+        if (w > pixel_width)
+          --i2
+          while (text[i2]!=' ' and text[i2]!='\n' and i2>i1) i2--
+          if (i2 == i1) i2 = initial_i2 - 1
+        endIf
+
+        if (needs_newline) buffer.println
+        forEach (i in i1..<i2) buffer.print( text[i] )
+        needs_newline = true
+        w = 0
+
+        if (i2 == len)
+          return buffer
+        else
+          which (text[i2])
+            case ' ':
+              while (i2<len and text[i2]==' ') i2++
+              if (i2<len and text[i2]=='\n') i2++
+
+            case '\n':
+              i2++
+          endWhich
+          i1 = i2
+        endIf
+
+        if (starting_i2 == i2) return buffer  # Kludge/error
+
+      endWhile
+
+      return buffer
+
+    method word_wrap_find_even_width( text:String, min:Int32, max:Int32, line_count:Int32 )->Int32
+      local mid = (min + max) / 2
+      if (mid == min) return max
+
+      use builder = StringPool
+        local mid_line_count = word_wrap( text, mid, builder ).count('\n') + 1
+
+        if (mid_line_count > line_count)
+          return word_wrap_find_even_width( text, mid, max, line_count )
+        else
+          return word_wrap_find_even_width( text, min, mid, line_count )
+        endIf
+      endUse
 endClass

@@ -65,7 +65,10 @@ class HitlerReacts
       endIf
 
       local font = IMFont( "Arial", (48*frame_size.y)/720 )
-      font.create_subtitled_frame( frame_size, ''Eat at "Joe's".'', File("Test.png") )
+      #font.create_subtitled_frame( frame_size, "Alpha\nBeta\nGamma", File("Test.png") )
+      #font.create_subtitled_frame( frame_size, "Alpha", File("Test.png") )
+      #font.create_subtitled_frame( frame_size, "Now is the time for all good men.", File("Test.png") )
+      font.create_subtitled_frame( frame_size, "Now is the time for all good men to come to the aid of their country.", File("Test.png") )
       #font.create_subtitled_frame( frame_size, ''"Test'ing"'', File("Test.png") )
 
       System.run @|imgcat test.png
