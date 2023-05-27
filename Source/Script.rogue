@@ -35,7 +35,6 @@ class Script
         if (not type) type = "HitlerReacts"
 
       else
-        println "Creating script '$'"(filepath)
         type = "HitlerReacts"
         local script =
           @|type HitlerReacts
@@ -145,7 +144,10 @@ class Script
            |HITLER: *bows head* *final words*
            |
         file.save( script )
-        init( filepath, type )
+        println
+        println "Created script '$'. Edit the script as desired and then run:"(filepath)
+        println "vemaker $"(filepath)
+        System.exit
       endIf
 
     method count->Int32

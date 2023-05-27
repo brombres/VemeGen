@@ -124,20 +124,15 @@ class Vemaker
       local video_file = File(System.executable_filepath).parent / "$.mp4"(type)
       local outfile = File( project_name + ".mp4" )
 
-      local cmd = ''ffmpeg -y -i $ -filter_complex_script $/ffmpeg_script.txt -map "[v$]" -map 0:a $''...
+      local cmd = ''ffmpeg -y -hide_banner -loglevel error -stats -i $ -filter_complex_script $/ffmpeg_script.txt -map "[v$]" -map 0:a $''...
         (video_file.esc,work_folder,script.count-1,outfile.esc)
       println "> " + cmd
       System.run cmd
 
       work_folder.delete
 
-      #trace timing
-      #trace command
-      # has //options and possibly //args
-
       #local font = IMFont( "Arial", (48*frame_size.y)/720 )
       #font.create_subtitled_frame( frame_size, "Now is the time for all good men to come to the aid of their country.", File("Test.png") )
-
       #System.run @|imgcat test.png
 
     method frame_size->XY
