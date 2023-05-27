@@ -10,7 +10,6 @@ class IMFont( name:String, point_size:Int32 )
       local subtitle_height = measure( subtitle ).y
 
       local origin_y = frame_size.y/2 - (line_height + (subtitle_height/2))
-      #local origin_y = frame_size.y/2 - (line_height + (subtitle_height*0))
 
       local cmd = @|magick -size $FRAME_SIZE canvas:none -font $FONT -pointsize $POINT_SIZE -gravity center \
                    |  -draw "text $SHADOW_ORIGIN \'$TEXT\'" -channel RGBA -blur 6x8 -fill black -stroke black \

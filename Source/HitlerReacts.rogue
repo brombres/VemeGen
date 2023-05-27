@@ -8,6 +8,7 @@ $define DATE    "May 25, 2023"
 
 $requireRogue "2.17"
 
+$include Script
 $include IMFont
 $include SubtitleTiming
 $include TimeSegment
@@ -59,19 +60,18 @@ class HitlerReacts
       #trace command
       # has //options and possibly //args
 
-      if (command//options//help)
+      if (command//options//help or command//args.count != 1)
         print_usage
         System.exit 0
       endIf
 
-      local font = IMFont( "Arial", (48*frame_size.y)/720 )
-      #font.create_subtitled_frame( frame_size, "Alpha\nBeta\nGamma", File("Test.png") )
-      #font.create_subtitled_frame( frame_size, "Alpha", File("Test.png") )
-      #font.create_subtitled_frame( frame_size, "Now is the time for all good men.", File("Test.png") )
-      font.create_subtitled_frame( frame_size, "Now is the time for all good men to come to the aid of their country.", File("Test.png") )
-      #font.create_subtitled_frame( frame_size, ''"Test'ing"'', File("Test.png") )
+      local script = Script( command//args[0] )
+      println script
 
-      System.run @|imgcat test.png
+      #local font = IMFont( "Arial", (48*frame_size.y)/720 )
+      #font.create_subtitled_frame( frame_size, "Now is the time for all good men to come to the aid of their country.", File("Test.png") )
+
+      #System.run @|imgcat test.png
 
     method frame_size->XY
       if (@frame_size.min > 0) return @frame_size
@@ -113,7 +113,6 @@ class HitlerReacts
     method parse_args( args:String[] )->Value
       local command = CommandLineParser().
       [
-        #option( "--flag",     &alias="-f" )
         option( "--help",     &aliases=["-h","-?"] )
         #option( "--setting=", &alias="-s" )
       ].parse( args )
@@ -125,10 +124,17 @@ class HitlerReacts
       println
 
       println @|USAGE
-               |  hitlerreacts [OPTIONS]
+               |  hitlerreacts <ScriptName>
                |
                |OPTIONS
                |  --help, -h, -?
                |    Show this help text.
+               |
+               |DESCRIPTION
+               |  If the specified script file does not exist then it is created with
+               |  placeholder dialog.
+               |
+               |  If it does exist, a "Hitler Reacts" video is created using subtitles from the
+               |  specified script file and the filename 'ScriptName.mp4'.
 
 endClass
