@@ -52,6 +52,7 @@ class HitlerReacts
     method init( args:String[] )
       install_media
       #trace frame_size
+      #@frame_size = XY(640,360)
 
       #@trace font.measure( ''Eat at "Joe's"'' )
 
@@ -60,13 +61,15 @@ class HitlerReacts
       #trace command
       # has //options and possibly //args
 
+      #{
       if (command//options//help or command//args.count != 1)
         print_usage
         System.exit 0
       endIf
+      }#
 
-      local script = Script( command//args[0] )
-      println script
+      #local script = Script( command//args[0] )
+      #println script
 
       #local font = IMFont( "Arial", (48*frame_size.y)/720 )
       #font.create_subtitled_frame( frame_size, "Now is the time for all good men to come to the aid of their country.", File("Test.png") )
