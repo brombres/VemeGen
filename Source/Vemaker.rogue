@@ -21,23 +21,6 @@ uses Bitmap/IO
 try
   Vemaker( System.command_line_arguments )
 
-  #{
-  System.run @|magick -size 1280x720 canvas:#444 -font Arial -pointsize 48 \
-              |  -gravity center \
-              |  -draw "text 0,270 \'Magick\'" -channel RGBA -blur 6x8 -fill black -stroke black \
-              |  -fill white -stroke white -draw "text 0,265 \'Magick\'" \
-              |  test.png
-  }#
-
-  #{
-  System.run @|magick -font Arial -pointsize 48 -verbose \
-              |  label:'This is great news. I am confident I got at least a 3.' \
-              |  test.png
-  }#
-
-              #|  png:- > /dev/null
-
-              #System.run @|imgcat test.png
 catch (error:Error)
   Console.error.println error
   System.exit 1
@@ -101,7 +84,7 @@ class Vemaker
       println "Creating work folder $/"(work_folder)
       work_folder.create_folder
 
-      local font = IMFont( "Arial", (48*frame_size.y)/720 )
+      local font = IMFont( font_name, (48*frame_size.y)/720 )
       local ffmpeg_script = (work_folder / "ffmpeg_script.txt").print_writer
       print "Generating $ subtitles"(script.count)
       flush
@@ -135,7 +118,7 @@ class Vemaker
 
       work_folder.delete
 
-      #local font = IMFont( "Arial", (48*frame_size.y)/720 )
+      #local font = IMFont( font_name, (48*frame_size.y)/720 )
       #font.create_subtitled_frame( frame_size, "Now is the time for all good men to come to the aid of their country.", File("Test.png") )
       #System.run @|imgcat test.png
 
@@ -154,6 +137,10 @@ class Vemaker
         endIf
       endIf
       throw Error( "[ERROR] Could not determine size of '$'."(video_file) )
+
+    method font_name->String
+      if (System.is_linux) return "Garuda"
+      else                 return "Arial"
 
     method install_media( type:String )
       video_file = File(System.executable_filepath).parent / "$.mp4"(type)

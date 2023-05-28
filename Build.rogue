@@ -16,7 +16,7 @@ uses Utility/VersionNumber
 #$ LIBRARIES(macOS)   = imagemagick(link:false)
 #$ LIBRARIES(Linux)   = libjpeg(install:libjpeg-dev)
 #$ LIBRARIES(Linux)   = libpng(install:libpng-dev)
-#$ LIBRARIES(Linux)   = imagemagick(link:false)
+#$ LIBRARIES(Linux)   = imagemagick(exists-cmd:"which convert", link:false)
 #$ LIBRARIES(Linux)   = ffmpeg(link:false)
 #$ LIBRARIES(Windows) = brombres/windowsmedialibs
 #$ CC_LINK(Windows)   = /link /LTCG
