@@ -15,8 +15,8 @@ $include TimeSegment
 $include VideoTimestamp
 
 uses Console/CommandLineParser
-uses Bitmap
-uses Bitmap/IO
+uses Graphics
+uses Graphics/BitmapIO
 
 try
   Vemaker( System.command_line_arguments )

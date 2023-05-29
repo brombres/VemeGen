@@ -2,27 +2,24 @@
 # to this folder and type "rogo" at the command line, or "rogo help" for a list
 # of supported commands.
 
-$requireRogue "2.17"
+$requireRogue "2.18"
 
 uses Utility/VersionNumber
 
-#$ LINK_LIBS            = false
+#$ LINK_LIBS            = true
    # Link the following in when compiling this Build.rogue
 
 #$ LIBRARIES(macOS)   = libjpeg
 #$ LIBRARIES(macOS)   = libpng
 #$ LIBRARIES(macOS)   = zlib(flags:-lz)
-#$ LIBRARIES(macOS)   = ffmpeg(link:false)
-#$ LIBRARIES(macOS)   = imagemagick(link:false)
 #$ LIBRARIES(Linux)   = libjpeg(install:libjpeg-dev)
 #$ LIBRARIES(Linux)   = libpng(install:libpng-dev)
-#$ LIBRARIES(Linux)   = imagemagick(exists-cmd:"which convert", link:false)
-#$ LIBRARIES(Linux)   = ffmpeg(link:false)
 #$ LIBRARIES(Windows) = brombres/windowsmedialibs
+#$ CC_LINK(macOS)     = -I /System/Libraries/Frameworks -framework Foundation -framework AppKit
 #$ CC_LINK(Windows)   = /link /LTCG
 
-uses Bitmap
-uses Bitmap/IO
+uses Graphics
+uses Graphics/BitmapIO
 
 augment Build
   # You can create a Local.settings file with overrides for these values, e.g.:
@@ -35,7 +32,7 @@ augment Build
     LAUNCHER_FOLDER  = "/usr/local/bin"
     ROGUEC_FLAGS     = ""
     CC_ARGS_MACOS    = ""
-    CC_LINK_MACOS    = ""
+    CC_LINK_MACOS    = "-I /System/Libraries/Frameworks -framework Foundation -framework AppKit"
     CC_ARGS_UNIX     = ""
     CC_LINK_UNIX     = ""
     CC_ARGS_WINDOWS  = ""
