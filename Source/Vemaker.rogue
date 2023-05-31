@@ -33,11 +33,6 @@ class Vemaker
 
   METHODS
     method init( args:String[] )
-      #trace frame_size
-      #@frame_size = XY(640,360)
-
-      #@trace font.measure( ''Eat at "Joe's"'' )
-
       local command = parse_args( args )
 
       local type : String
@@ -84,7 +79,7 @@ class Vemaker
       println "Creating work folder $/"(work_folder)
       work_folder.create_folder
 
-      local font = IMFont( font_name, (48*frame_size.y)/720 )
+      local font = IMFont( font_name, (64*frame_size.y)/720 )
       local ffmpeg_script = (work_folder / "ffmpeg_script.txt").print_writer
       print "Generating $ subtitles"(script.count)
       flush
@@ -117,10 +112,6 @@ class Vemaker
       System.run cmd
 
       work_folder.delete
-
-      #local font = IMFont( font_name, (48*frame_size.y)/720 )
-      #font.create_subtitled_frame( frame_size, "Now is the time for all good men to come to the aid of their country.", File("Test.png") )
-      #System.run @|imgcat test.png
 
     method frame_size->XY
       if (@frame_size.min > 0) return @frame_size

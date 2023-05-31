@@ -12,10 +12,13 @@ uses Utility/VersionNumber
 #$ LIBRARIES(macOS)   = libjpeg
 #$ LIBRARIES(macOS)   = libpng
 #$ LIBRARIES(macOS)   = zlib(flags:-lz)
+#$ LIBRARIES(macOS)   = freetype(freetype2) bzip2(ignore-exe-only:true)
 #$ LIBRARIES(Linux)   = libjpeg(install:libjpeg-dev)
 #$ LIBRARIES(Linux)   = libpng(install:libpng-dev)
+#$ LIBRARIES(Linux)   = freetype2(libfreetype6-dev)
 #$ LIBRARIES(Windows) = brombres/windowsmedialibs
 #$ CC_LINK(macOS)     = -I /System/Libraries/Frameworks -framework Foundation -framework AppKit
+#$ CC_LINK(macOS)     = -lbz2
 #$ CC_LINK(Windows)   = /link /LTCG
 
 uses Graphics
@@ -28,7 +31,7 @@ augment Build
     PROJECT          = "Vemaker"
     LAUNCHER_NAME    = PROJECT.to_lowercase : String
 
-    BUILD_MODE       = "debug"  # set to "debug" or "release"
+    BUILD_MODE       = "release"  # set to "debug" or "release"
     LAUNCHER_FOLDER  = "/usr/local/bin"
     ROGUEC_FLAGS     = ""
     CC_ARGS_MACOS    = ""

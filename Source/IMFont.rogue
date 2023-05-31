@@ -1,34 +1,23 @@
-class IMFont( name:String, point_size:Int32 )
+class IMFont
   PROPERTIES
-    character_sizes = [String:XY]
-    magick = which{ System.is_linux:"convert" || "magick" } : String
+    font : BitmapFont
 
   METHODS
+    method init( font_name:String, pixel_height:Int32 )
+      font = BitmapFont( font_name, pixel_height )
+
     method create_subtitled_frame( frame_size:XY, subtitle:String, outfile:File )
-      local line_height = measure( "Tj" ).y
-
       subtitle = word_wrap( subtitle, frame_size.x * 0.9, &even )
-      local subtitle_height = measure( subtitle ).y
+      local subtitle_size = font.measure( subtitle )
 
-      local origin_y = frame_size.y/2 - (line_height + (subtitle_height/2))
-
-      local cmd =
-        magick +
-        @| -size $FRAME_SIZE canvas:none -font $FONT -pointsize $POINT_SIZE -gravity center \
-         |-draw "text $SHADOW_ORIGIN \'$TEXT\'" -channel RGBA -blur 6x8 -fill black -stroke black \
-         |-fill white -stroke white -draw "text $ORIGIN \'$TEXT\'" $FILEPATH
-      cmd .= replacing( "$FILEPATH",      outfile.esc )
-      cmd .= replacing( "$FONT",          this.name )
-      cmd .= replacing( "$FRAME_SIZE",    "$x$"(frame_size.x,frame_size.y) )
-      cmd .= replacing( "$ORIGIN",        "0,$"(origin_y) )
-      cmd .= replacing( "$POINT_SIZE",    this.point_size->String )
-      cmd .= replacing( "$SHADOW_ORIGIN", "0,$"(origin_y+point_size/9) )
-      cmd .= replacing( "$TEXT",          subtitle.replacing("\"", "\\\"").replacing("'","\\\\\\'") )
-      local result = Process.run( cmd, &env )
-      if (not result.success)
-        println cmd
-        throw Error( ''[Error] Failed to create subtitle image "$".''(subtitle) )
-      endIf
+      local frame = Bitmap( frame_size )
+      local origin = Box( frame_size-XY(0,font.height) ).at(0.5,1.0)
+      forEach (shadow_dy in 2..font.height/10)
+        local shadow_offset = XY( shadow_dy/2, shadow_dy )
+        font.draw( subtitle, frame, origin+shadow_offset, Anchor.BOTTOM, AlphaFillBitmapBlitFn(Color.BLACK) )
+      endForEach
+      font.draw( subtitle, frame, origin, Anchor.BOTTOM )
+      outfile.save( frame.to_png_bytes )
 
     method measure( text:String, i1=0:Int32, i2=null:Int32? )->XY
       i1 .= clamped( 0, text.count-1 )
@@ -38,30 +27,14 @@ class IMFont( name:String, point_size:Int32 )
 
       if (i1 > i2.value) return XY(0,0)
 
-      text .= substring( i1, (i2.value-i1)+1 )
-      if (text.count == 1)
-        local entry = character_sizes.find( text )
-        if (entry) return entry.value
-      endIf
+      use buffer = StringPool
+        buffer.reserve( (i2.value-i1)+1 )
+        forEach (i in i1..i2.value)
+          buffer.print( text[i] )
+        endForEach
 
-      local og_text = text
-
-      if (text.begins_with(' ')) text = '\\' + text
-
-      text .= replacing( "\"", "\\\"" )
-
-      local cmd = ''$ -font $ -pointsize $ -verbose label:"$" png:- > /dev/null''(magick,name,point_size,text)
-      local result = Process.run( cmd, &env )
-      if (result.success)
-        local dims = result->String.after_first("LABEL ").before_first(' ').split('x')
-        if (dims.count == 2)
-          local size = XY( dims[0]->Int32, dims[1]->Int32 )
-          if (og_text.count == 1) character_sizes[og_text] = size
-          return size
-        endIf
-      endIf
-
-      throw Error( "[Error] Failed to determine text size using ImageMagick: $"(result) )
+        return font.measure( buffer )
+      endUse
 
     method word_wrap( text:String, pixel_width:Int32, buffer=null:String, &even )->String
       # Prints a word-wrapped version of the given string into an optional
@@ -93,7 +66,7 @@ class IMFont( name:String, point_size:Int32 )
 
         # find last space or first \n
         while (w <= pixel_width and i2 < len and text[i2] != '\n')
-          w += measure( text, i2, i2 ).x
+          w = measure( text, i1, i2 ).x
           i2++
         endWhile
 
