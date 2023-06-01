@@ -28,7 +28,7 @@ augment Build
   # You can create a Local.settings file with overrides for these values, e.g.:
   # BUILD_MODE = release
   PROPERTIES
-    PROJECT          = "Vemaker"
+    PROJECT          = "MkVeme"
     LAUNCHER_NAME    = PROJECT.to_lowercase : String
 
     BUILD_MODE       = "release"  # set to "debug" or "release"
@@ -45,7 +45,7 @@ endAugment
 routine rogo_default
   # Builds and runs this project - equivalent to 'rogo build && rogo run'.
   rogo_build
-  #rogo_install  # Uncomment to automatically install a /usr/local/bin/vemaker launcher
+  #rogo_install  # Uncomment to automatically install a /usr/local/bin/mkveme launcher
   rogo_run
 endRoutine
 
@@ -199,7 +199,7 @@ routine rogo_update_version( version:String )
     error.println( "[WARNING] The new version number ($) is not higher than the current version number ($)."(version,current_version) )
   endIf
 
-  block file = File( "Source/Vemaker.rogue" )
+  block file = File( "Source/MkVeme.rogue" )
     if (file.exists)
       local og_content = String(file)
       local content = og_content

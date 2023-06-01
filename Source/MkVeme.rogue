@@ -1,5 +1,5 @@
 #================================================================================
-# Vemaker.rogue
+# MkVeme.rogue
 # May 25, 2023
 #================================================================================
 
@@ -19,14 +19,14 @@ uses Graphics
 uses Graphics/BitmapIO
 
 try
-  Vemaker( System.command_line_arguments )
+  MkVeme( System.command_line_arguments )
 
 catch (error:Error)
   Console.error.println error
   System.exit 1
 endTry
 
-class Vemaker
+class MkVeme
   PROPERTIES
     video_file : File
     frame_size : XY
@@ -166,12 +166,12 @@ class Vemaker
       return command
 
     method print_usage
-      println "Vemaker v$"(VERSION)
+      println "MkVeme v$"(VERSION)
       println "$ by Brom Bresenham"(DATE)
       println
 
       println @|USAGE
-               |  vemaker [OPTIONS] <ScriptName>
+               |  mkveme [OPTIONS] <ScriptName>
                |
                |OPTIONS
                |  --help, -h, -?
