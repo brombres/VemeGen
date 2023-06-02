@@ -8,15 +8,19 @@ $define DATE    "May 25, 2023"
 
 $requireRogue "2.17"
 
+$include MVFont
 $include Script
-$include IMFont
 $include SubtitleTiming
 $include TimeSegment
+$include Veme
+$include Vemes/HitlerReacts
 $include VideoTimestamp
 
 uses Console/CommandLineParser
 uses Graphics
 uses Graphics/BitmapIO
+
+$macro REGISTER<<$Name>> types[$string($Name)] = function $Name()
 
 try
   MkVeme( System.command_line_arguments )
@@ -28,11 +32,16 @@ endTry
 
 class MkVeme
   PROPERTIES
-    video_file : File
-    frame_size : XY
+    video_file  : File
+    frame_size  : XY
+    font_height = 48
+    types       = [String:Function]
 
   METHODS
     method init( args:String[] )
+      REGISTER<<HitlerReacts>>
+      types//HitlerReacts()
+
       local command = parse_args( args )
 
       local type : String
@@ -79,7 +88,7 @@ class MkVeme
       println "Creating work folder $/"(work_folder)
       work_folder.create_folder
 
-      local font = IMFont( font_name, (64*frame_size.y)/720 )
+      local font = MVFont( font_name, (font_height*frame_size.y)/720 )
       local ffmpeg_script = (work_folder / "ffmpeg_script.txt").print_writer
       print "Generating $ subtitles"(script.count)
       flush

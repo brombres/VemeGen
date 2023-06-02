@@ -1,4 +1,4 @@
-class IMFont
+class MVFont
   PROPERTIES
     font : BitmapFont
 

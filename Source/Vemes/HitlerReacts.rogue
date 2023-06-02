@@ -1,0 +1,5 @@
+class HitlerReacts : Veme [essential]
+  METHODS
+    method init
+      trace
+endClass
