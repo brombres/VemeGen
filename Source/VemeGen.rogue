@@ -1,5 +1,5 @@
 #================================================================================
-# MkVeme.rogue
+# VemeGen.rogue
 # May 25, 2023
 #================================================================================
 
@@ -23,14 +23,14 @@ uses Graphics/BitmapIO
 $macro REGISTER<<$Name>> types[$string($Name)] = function $Name()
 
 try
-  MkVeme( System.command_line_arguments )
+  VemeGen( System.command_line_arguments )
 
 catch (error:Error)
   Console.error.println error
   System.exit 1
 endTry
 
-class MkVeme
+class VemeGen
   PROPERTIES
     video_file  : File
     frame_size  : XY
@@ -175,12 +175,12 @@ class MkVeme
       return command
 
     method print_usage
-      println "MkVeme v$"(VERSION)
+      println "VemeGen v$"(VERSION)
       println "$ by Brom Bresenham"(DATE)
       println
 
       println @|USAGE
-               |  mkveme [OPTIONS] <ScriptName>
+               |  vemegen [OPTIONS] <ScriptName>
                |
                |OPTIONS
                |  --help, -h, -?

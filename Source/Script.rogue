@@ -146,7 +146,7 @@ class Script
         file.save( script )
         println
         println "Created script '$'. Edit the script as desired and then run:"(filepath)
-        println "mkveme $"(filepath)
+        println "vemegen $"(filepath)
         System.exit
       endIf
 
