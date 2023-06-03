@@ -5,150 +5,28 @@ class Script
     type      : String
 
   METHODS
-    method init( filepath, type_option:String )
-      if (not File(filepath).exists)
-        if (not filepath.ends_with(".txt",&ignore_case)) filepath += ".txt"
-      endIf
+    method init( file:File, type_option:String )
+      println "Reading script '$'"(file)
+      forEach (line in LineReader(file))
+        line .= trimmed
 
-      local file = File( filepath )
-      if (file.exists)
-        println "Reading script '$'"(file)
-        forEach (line in LineReader(file))
-          line .= trimmed
+        if (line == "" or line.begins_with('#')) nextIteration
 
-          if (line == "" or line.begins_with('#')) nextIteration
-
-          if (line.begins_with("type "))
-            type = line.after_first(' ').trimmed
-          elseIf (line.contains( ':' ))
-            subtitles.add( line.after_first(':') )
-          else
-            subtitles.add( line )
-          endIf
-        endForEach
-
-        if (type_option and type and type_option != type)
-          throw Error( "[Error] Veme type mismatch; command line specifies '--type=$' but script specifies 'type $'."(type_option,type) )
+        if (line.begins_with("type "))
+          type = line.after_first(' ').trimmed
+        elseIf (line.contains( ':' ))
+          subtitles.add( line.after_first(':') )
+        else
+          subtitles.add( line )
         endIf
+      endForEach
 
-        if (not type) type = type_option
-        if (not type) type = "HitlerReacts"
-
-      else
-        type = "HitlerReacts"
-        local script =
-          @|type HitlerReacts
-           |
-           |OFFICER 1: *starts status update* (a man enters the room)
-           |
-           |OFFICER 1: *status update* (sea of faces)
-           |
-           |OFFICER 1: *status update* (points near Berlin on map)
-           |
-           |OFFICER 1: *status update* (Hitler watches)
-           |
-           |OFFICER 1: *points at map* *concludes status update*
-           |
-           |HITLER: *gestures* *dismisses concern*
-           |
-           |HITLER: *gestures* *dismisses concern*
-           |
-           |# Concerned officers hesitate to speak
-           |
-           |OFFICER 1: My Fuhrer...
-           |
-           |OFFICER 1: Steiner...
-           |
-           |OFFICER 2: (interjecting) *no help is coming*
-           |
-           |OFFICER 2: (camera behind Hitler) *situation is FUBAR*
-           |
-           |# Long pause by Hitler as his rage builds. He takes off his reading glasses.
-           |
-           |HITLER: Everyone except XYZ leave the room.
-           |
-           |# Most officers leave.
-           |
-           |HITLER: *rage builds*
-           |
-           |HITLER: *rage builds* *shakes fistful of map pencils*
-           |
-           |HITLER: *rages* (cut to people listening outside door)
-           |
-           |HITLER: *rages* (people listening outside)
-           |
-           |HITLER: *rages* (woman crying)
-           |
-           |HITLER: *rages* (cut back to Hitler)
-           |
-           |HITLER: *rages* *stands up*
-           |
-           |HITLER: *rages at officer*
-           |
-           |OFFICER 1: *speaks defensively*
-           |
-           |HITLER: *not having it*
-           |
-           |OFFICER 1: Mein Fuhrer, *begs and explains*
-           |
-           |HITLER: *not having it* *rages* *throws pencils down*
-           |
-           |HITLER: *starts pacing* *rages*
-           |
-           |HITLER: *new rage starts building*
-           |
-           |HITLER: *ragesplain*
-           |
-           |HITLER: *ragesplain*
-           |
-           |HITLER: (cut to listeners; women crying) *ragesplain*
-           |
-           |HITLER: (concerned woman approaches) *ragesplain* (cut back to Hitler) *pounds table*
-           |
-           |HITLER: *rages* *makes grasping gesture* *shakes clenched fist*
-           |
-           |HITLER: *rages low but intense* *runs out of steam and sits down*
-           |
-           |HITLER: *wearily explains*
-           |
-           |HITLER: *wearily explains* *beats his chest*
-           |
-           |HITLER: *explains* *raises clenched fists* *takes a weary look around*
-           |
-           |HITLER: *starts speaking again* (officers look at one another uncomfortably)
-           |
-           |HITLER: (side profile) *barks words at officers* *despairs*
-           |
-           |HITLER: (officers watch Hitler, who's now hunched over to the side) *despairs*
-           |
-           |HITLER: *looks up* *barks a few words*
-           |
-           |HITLER: *looks at ground* *barks words*
-           |
-           |HITLER: *looks around accusingly* *rages*
-           |
-           |WOMAN: *comforts companion*
-           |
-           |HITLER: *speaks quietly* *defeated*
-           |
-           |HITLER: *speaks quietly*
-           |
-           |HITLER: *speaks a few quiet words* *resigned* (officers look at one another uncomfortably)
-           |
-           |HITLER: *speaks quietly* *head down*
-           |
-           |HITLER: *looks up to the side* *speaks resignedly*
-           |
-           |HITLER: *speaks resignedly*
-           |
-           |HITLER: *bows head* *final words*
-           |
-        file.save( script )
-        println
-        println "Created script '$'. Edit the script as desired and then run:"(filepath)
-        println "vemegen $"(filepath)
-        System.exit
+      if (type_option and type and type_option != type)
+        throw Error( "[Error] Veme type mismatch; command line specifies '--type=$' but script specifies 'type $'."(type_option,type) )
       endIf
+
+      if (not type) type = type_option
+      if (not type) type = "HitlerReacts"
 
     method count->Int32
       return subtitles.count
@@ -161,15 +39,4 @@ class Script
       result.println (forEach in subtitles)
       return result
 
-      #ffmpeg -i files.txt -filter_complex_script ffmpeg_script.txt -map "[v2]" -map 0:a output.mp4
-      #ffmpeg -i files.txt -filter_complex_script ffmpeg_script.txt -map "[v2]" -map 0:a output.mp4
-
-      #movie=1.png[i1];
-      #movie=2.png[i2];
-      #[0][i1] overlay=0:0:enable='between(t,1,3)'[v1];
-      #[v1][i2] overlay=0:0:enable='between(t,5,7)'[v2]
-
-      # ffmpeg_script.txt
-      #[0][1] overlay=0:0:enable='between(t,0,5)'[v1];
-      #[v1][2] overlay=0:0:enable='between(t,7,10)'[v2]
 endClass

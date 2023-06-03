@@ -8,9 +8,8 @@ $define DATE    "May 25, 2023"
 
 $requireRogue "2.17"
 
-$include MVFont
+$include VGFont
 $include Script
-$include SubtitleTiming
 $include TimeSegment
 $include Veme
 $include Vemes/HitlerReacts
@@ -20,8 +19,6 @@ uses Console/CommandLineParser
 uses Graphics
 uses Graphics/BitmapIO
 
-$macro REGISTER<<$Name>> types[$string($Name)] = function $Name()
-
 try
   VemeGen( System.command_line_arguments )
 
@@ -30,29 +27,22 @@ catch (error:Error)
   System.exit 1
 endTry
 
+class Vemes : [String:Veme] [singleton];
+
 class VemeGen
-  PROPERTIES
-    video_file  : File
-    frame_size  : XY
-    font_height = 48
-    types       = [String:Function]
+  DEFINITIONS
+    DEFAULT_VEME_TYPE = "HitlerReacts"
 
   METHODS
     method init( args:String[] )
-      REGISTER<<HitlerReacts>>
-      types//HitlerReacts()
-
       local command = parse_args( args )
 
       local type : String
       if (command//options//type)
         type = command//options//type
-        which (type)
-          case "HitlerReacts"
-            noAction
-          others
-            throw Error( "[Error] Unsupported veme type '$'."(type) )
-        endWhich
+        if (not Vemes.contains(type))
+          throw Error( "[Error] Unsupported veme type '$'."(type) )
+        endIf
       endIf
 
       if (command//options//help or command//args.count != 1)
@@ -60,110 +50,30 @@ class VemeGen
         System.exit 0
       endIf
 
-      local script = Script( command//args[0], type )
-      type = script.type
+      local filepath = command//args[0]->String
+      if (filepath.ends_with('.'))                 filepath .= leftmost(-1)
+      if (filepath.ends_with(".txt",&ignore_case)) filepath .= leftmost(-4)
 
-      local timing = SubtitleTiming[ type ]
-
-      local modified = false
-      forEach (segment at i in timing)
-        if (i+1 < timing.count)
-          if (segment.end.seconds >= timing[i+1].start.seconds)
-            trace segment
-            modified = true
-          endIf
-        endIf
-      endForEach
-      if (modified) System.exit
-
-      if (script.subtitles.count != timing.count)
-        throw Error( "[Error] Script is wrong length - $ subtitles required, found $."(timing.count,script.subtitles.count) )
+      local script : Script
+      local file = File( "$.txt"(filepath) )
+      if (file.exists)
+        script = Script( file, type )
+        type = script.type
+      else
+        if (not type) type = DEFAULT_VEME_TYPE
       endIf
 
-      install_media( type )
-
-      local project_name = File( script.filepath.before_first(".txt") ).filename
-      local work_folder = File( "." + project_name )
-
-      println "Creating work folder $/"(work_folder)
-      work_folder.create_folder
-
-      local font = MVFont( font_name, (font_height*frame_size.y)/720 )
-      local ffmpeg_script = (work_folder / "ffmpeg_script.txt").print_writer
-      print "Generating $ subtitles"(script.count)
-      flush
-      forEach (sub_index in 0..<script.count)
-        print '.'
-        flush
-        font.create_subtitled_frame( frame_size, script[sub_index], File(work_folder/(sub_index+".png")) )
-
-        ffmpeg_script.println "movie=$/$.png[i$];"(work_folder,sub_index,sub_index)
-      endForEach
-      println
-
-      local prev = "0"
-      forEach (sub_index in 0..<script.count)
-        local input = "i$"(sub_index)
-        local next = "v$"(sub_index)
-        local start_time = timing[sub_index].start.seconds.format(".3")
-        local end_time   = timing[sub_index].end.seconds.format(".3")
-        ffmpeg_script.println ''[$][$] overlay=0:0:enable='between(t,$,$)'[$];''(prev,input,start_time,end_time,next)
-        prev = next
-      endForEach
-      ffmpeg_script.close
-
-      local video_file = File(System.executable_filepath).parent / "$.mp4"(type)
-      local outfile = File( project_name + ".mp4" )
-
-      local cmd = ''ffmpeg -y -hide_banner -loglevel error -stats -i $ -filter_complex_script $/ffmpeg_script.txt -map "[v$]" -map 0:a $''...
-        (video_file.esc,work_folder,script.count-1,outfile.esc)
-      println "> " + cmd
-      System.run cmd
-
-      work_folder.delete
-
-    method frame_size->XY
-      if (@frame_size.min > 0) return @frame_size
-
-      local cmd = "ffprobe -v error -select_streams v -show_entries stream=width,height -of json $"(video_file.esc)
-      local result = Process.run( cmd, &env )
-      if (result.success)
-        local info = JSON.parse( result->String )
-        if (info//streams.count)
-          local w = info//streams[0]//width->Int32
-          local h = info//streams[0]//height->Int32
-          @frame_size = XY( w, h )
-          return @frame_size
-        endIf
+      local veme = Vemes[type]
+      if (not veme)
+        throw Error( "[INTERNAL] Veme type not found: '$'."(type) )
       endIf
-      throw Error( "[ERROR] Could not determine size of '$'."(video_file) )
 
-    method font_name->String
-      if (System.is_linux) return "Garuda"
-      else                 return "Arial"
-
-    method install_media( type:String )
-      video_file = File(System.executable_filepath).parent / "$.mp4"(type)
-
-      if (not video_file.exists)
-        println
-        which (type)
-          case "HitlerReacts"
-            println @|Download "Hitler's Rage - Downfall video with no subtitles" from YouTube.
-            println "YouTube link:            https://youtu.be/YHtSUcw4q4M"
-            println "YouTube downloader link: https://www.y2mate.com/youtube/YHtSUcw4q4M"
-        endWhich
-        println
-        println "Drag and drop the video onto this window or paste the file location here:"
-        local filepath = Console.input( "> " )
-        local src_file = File( filepath.trimmed.unescaped )
-        if (not src_file.exists)
-          throw Error( "File not found: [$]"(src_file) )
-        endIf
-
-        local cmd = "cp $ $"(src_file.esc,video_file.esc)
-        println "> $"(cmd)
-        System.run( cmd )
+      if (script)
+        veme.generate( filepath, script )
+      else
+        veme.create_default_script( file )
+        local mesg = "\nCreated template script '$'. Edit the script as desired and then re-run 'vemegen $'."(file,file)
+        println mesg.word_wrapped( 80.or_smaller(Console.width) )
       endIf
 
     method parse_args( args:String[] )->Value

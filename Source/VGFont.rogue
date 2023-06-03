@@ -1,4 +1,4 @@
-class MVFont
+class VGFont
   PROPERTIES
     font : BitmapFont
 
