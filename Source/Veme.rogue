@@ -1,3 +1,5 @@
+uses Utility/Timer
+
 class Veme [abstract]
   PROPERTIES
     video_file  : File
@@ -80,15 +82,18 @@ class Veme [abstract]
       endForEach
       ffmpeg_script.close
 
-      local video_file = File(System.executable_filepath).parent / "$.mp4"(type)
+      local video_file = File(System.executable_filepath).parent / "$$.mp4"(type,which{Settings.is_preview:"-Preview"||""})
       local outfile = File( project_name + ".mp4" )
 
-      local cmd = ''ffmpeg -y -hide_banner -loglevel error -stats -i $ -filter_complex_script $/ffmpeg_script.txt -map "[v$]" -map 0:a $''...
-        (video_file.esc,work_folder,script.count-1,outfile.esc)
+      println "Encoding video with overlaid subtitles..."
+      local cmd = ''ffmpeg -y -hide_banner -loglevel error -stats -i $ ''(video_file.esc)
+      cmd += ''-filter_complex_script $/ffmpeg_script.txt ''(work_folder)
+      cmd += ''-map "[v$]" -map 0:a $''(script.count-1,outfile.esc)
       println "> " + cmd
       System.run cmd
 
       println "Deleting work folder $/"(work_folder)
+      println "Veme complete: $"(outfile)
       work_folder.delete
 
     method install_media [abstract]
@@ -109,6 +114,18 @@ class Veme [abstract]
 
         println ''> Copy "$" -> "$"'' (src_file,video_file)
         src_file.copy_to( video_file )
+      endIf
+
+      if (Settings.is_preview)
+        local preview_file = File(System.executable_filepath).parent / "$-Preview.mp4"(type)
+        if (not preview_file.exists)
+          println "Creating low-res preview video template..."
+          local cmd = ''ffmpeg -y -hide_banner -loglevel error -stats -i $ ''(video_file.esc)
+          cmd +=  ''-filter:v scale=480:-1 -c:a copy $''(preview_file.esc)
+          println "> " + cmd
+          System.run cmd
+        endIf
+        video_file = preview_file
       endIf
 
     method timing->TimeSegment[] [abstract]

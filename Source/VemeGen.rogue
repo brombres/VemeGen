@@ -27,12 +27,16 @@ catch (error:Error)
   System.exit 1
 endTry
 
+class Settings [singleton]
+  PROPERTIES
+    DEFAULT_VEME_TYPE = "HitlerReacts"
+    is_preview : Logical
+endClass
+
+
 class Vemes : [String:Veme] [singleton];
 
 class VemeGen
-  DEFINITIONS
-    DEFAULT_VEME_TYPE = "HitlerReacts"
-
   METHODS
     method init( args:String[] )
       local command = parse_args( args )
@@ -43,6 +47,10 @@ class VemeGen
         if (not Vemes.contains(type))
           throw Error( "[Error] Unsupported veme type '$'."(type) )
         endIf
+      endIf
+
+      if (command//options//preview)
+        Settings.is_preview = true
       endIf
 
       if (command//options//help or command//args.count != 1)
@@ -60,7 +68,7 @@ class VemeGen
         script = Script( file, type )
         type = script.type
       else
-        if (not type) type = DEFAULT_VEME_TYPE
+        if (not type) type = Settings.DEFAULT_VEME_TYPE
       endIf
 
       local veme = Vemes[type]
@@ -79,8 +87,9 @@ class VemeGen
     method parse_args( args:String[] )->Value
       local command = CommandLineParser().
       [
-        option( "--help",  &aliases=["-h","-?"] )
-        option( "--type=", &alias="-t" )
+        option( "--help",    &aliases=["-h","-?"] )
+        option( "--preview", &alias="-p" )
+        option( "--type=",   &alias="-t" )
       ].parse( args )
       return command
 
@@ -95,6 +104,9 @@ class VemeGen
                |OPTIONS
                |  --help, -h, -?
                |    Show this help text.
+               |
+               |  --preview, -p
+               |    Faster veme rendering using lower resolution.
                |
                |  --type=<VemeType>, -t <VemeType>
                |    'HitlerReacts' the currently the only supported type.

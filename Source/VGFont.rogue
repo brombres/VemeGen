@@ -12,7 +12,7 @@ class VGFont
 
       local frame = Bitmap( frame_size )
       local origin = Box( frame_size-XY(0,font.height) ).at(0.5,1.0)
-      forEach (shadow_dy in 2..font.height/10)
+      forEach (shadow_dy in 1..(font.height/10).or_larger(2))
         local shadow_offset = XY( shadow_dy/2, shadow_dy )
         font.draw( subtitle, frame, origin+shadow_offset, Anchor.BOTTOM, AlphaFillBitmapBlitFn(Color.BLACK) )
       endForEach
