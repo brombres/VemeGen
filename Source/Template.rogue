@@ -1,0 +1,7 @@
+class Template [abstract]
+  METHODS
+    method init_object
+      Templates[ type_name ] = script
+
+    method script->String [abstract]
+endClass

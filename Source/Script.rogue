@@ -1,37 +1,89 @@
 class Script
   PROPERTIES
-    filepath  : String
-    subtitles = String[]
-    type      : String
+    filepath   : String
+    type       : String
+    video_info = ""
+    subtitles  = Subtitle[]
 
   METHODS
-    method init( file:File, type_option:String )
+    method init( file:File )
       println "Reading script '$'"(file)
-      forEach (line in LineReader(file))
+
+      local times = String[]
+
+      local reader = LineReader( file )
+      forEach (line in reader)
         line .= trimmed
 
         if (line == "" or line.begins_with('#')) nextIteration
 
-        if (line.begins_with("type "))
+        if (line.begins_with("$type "))
           type = line.after_first(' ').trimmed
-        elseIf (line.contains( ':' ))
-          subtitles.add( line.after_first(':') )
+          nextIteration
+        elseIf (line.begins_with("$videoInfo"))
+          video_info = String()
+          while (reader.peek.trimmed.begins_with('|'))
+            video_info.println( reader.read.trimmed.from(1) )
+          endWhile
+          nextIteration
+        endIf
+
+        local timing = line.extract_string( "*[$]*" )
+        if (timing)
+          line .= replacing( "[$]"(timing), "" ).trimmed
+          times.add( timing )
+        endIf
+
+        if (line == "") nextIteration
+
+        if (line.contains( ':' ))
+          subtitles.add( Subtitle(line.after_first(':')) )
         else
-          subtitles.add( line )
+          subtitles.add( Subtitle(line) )
         endIf
       endForEach
 
-      if (type_option and type and type_option != type)
-        throw Error( "[Error] Veme type mismatch; command line specifies '--type=$' but script specifies 'type $'."(type_option,type) )
+      if (times.count != subtitles.count)
+        local subs = "# subtitle".pluralized( subtitles.count )
+        local timings = "# time".pluralized( times.count )
+        throw Error( "The script contains $ but only $ are supplied."(subs,timings) )
       endIf
 
-      if (not type) type = type_option
-      if (not type) type = "HitlerReacts"
+      # Add times to subtitle objects
+      forEach (time at i in times)
+        if (time.contains(','))
+          local parts    = time.split( ',' )
+          local start    = VideoTimestamp( parts[0].trimmed ).seconds
+          local duration = parts[1].trimmed->Real64
+          subtitles[i].start_time = start
+          subtitles[i].duration   = duration
+        else
+          local start = VideoTimestamp( time.trimmed ).seconds
+          subtitles[i].start_time = start
+        endIf
+      endForEach
+
+      # Fill auto-durations
+      forEach (subtitle at i in subtitles)
+        if (subtitle.duration == 0)
+          local duration = subtitle.auto_duration
+          if (i+1 < subtitles.count)
+            duration .= clamped_high( (subtitles[i+1].start_time-0.05) - subtitle.start_time )
+          endIf
+          subtitle.duration = duration
+        endIf
+      endForEach
+
+      if (type)
+        println "Veme type: $"(type)
+      else
+        throw Error( "Script file must specify '$type TypeName'." )
+      endIf
 
     method count->Int32
       return subtitles.count
 
-    method get( index:Int32 )->String
+    method get( index:Int32 )->Subtitle
       return subtitles[index]
 
     method to->String

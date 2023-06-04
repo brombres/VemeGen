@@ -29,6 +29,15 @@ class VideoTimestamp( seconds:Real64 ) [compound]
       local s = seconds->Int32
       local ms = (((seconds - s) * 1000) + 0.5)->Int32
 
-      if (h) return "$:$:$.$"(h,m.format("02"),s.format("02"),ms.format("03"))
-      else   return "$:$.$"(m,s.format("02"),ms.format("03"))
+      local result : String
+      if (h)     result = "$:$:$"(h,m.format("02"),s.format("02"))
+      elseIf (m) result = "$:$"(m,s.format("02"))
+      else       result = s.format("02")
+
+      if (ms)
+        result += ".$"(ms.format("03"))
+        while (result.ends_with('0')) result .= leftmost(-1)
+      endIf
+
+      return result
 endClass

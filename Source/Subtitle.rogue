@@ -1,0 +1,22 @@
+class Subtitle( start_time:Real64, duration:Real64, text:String )
+  METHODS
+    method init( text )
+
+    method auto_duration->Real64
+      local a = text.count / 12.0
+      local b = text.count(' ') * 0.35
+      return ((a + b) / 2).or_larger( 2 )
+
+    method end_time->Real64
+      return start_time + duration
+
+    method to->String
+      if (duration)
+        local d = duration.format( ".3" )
+        while (d.ends_with('0')) d .= leftmost( -1 )
+        if (d.ends_with('.')) d .= leftmost( -1 )
+        return "[$, $] $" (VideoTimestamp(start_time),d,text)
+      else
+        return "[$] $" (VideoTimestamp(start_time),text)
+      endIf
+endClass

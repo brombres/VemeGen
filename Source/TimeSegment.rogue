@@ -1,5 +1,0 @@
-class TimeSegment( start:VideoTimestamp, end:VideoTimestamp )
-  METHODS
-    method to->String
-      return "[$,$]"(start,end)
-endClass
