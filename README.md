@@ -39,7 +39,9 @@ Author    | Brom Bresenham
 
 ## Hitler Reacts: "Outlast" TV Show
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/XQt4knC_ma8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-
+### Source Script
 [Examples/Hitler-Reacts-Outlast-TV-Show.txt](Examples/Hitler-Reacts-Outlast-TV-Show.txt)
+
+### YouTube
+[![Hitler Reacts: Outlast TV Show on YouTube](Media/Outlast-YouTube.jpeg)](https://youtu.be/XQt4knC_ma8)
 
