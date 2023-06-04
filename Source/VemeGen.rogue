@@ -76,8 +76,12 @@ class VemeGen [singleton]
           throw Error( ''Script file "$" already exists.''(script_file) )
         endIf
 
-        local template = Templates[ type ]
+        local template : String
+        if (type) template = Templates[ type ]
+
         if (not template)
+          if (not type) type = "Custom"
+
           template =
             @|$type $TYPE
              |
@@ -87,7 +91,7 @@ class VemeGen [singleton]
              ||<YouTube Link>
              ||<etc.>
              |
-             |# Comments start with '#' and are ignored
+             |         # Comments start with '#' and are ignored
              |
              |[1.25]   This subtitle starts at 1.25 seconds with auto-duration.
              |
@@ -103,6 +107,7 @@ class VemeGen [singleton]
         println ''Edit and then generate the veme with: vemegen $''(script_file)
         script_file.save( template )
         return
+
       elseIf (command//options//type)
         throw Error( "'--type' can only be specified in tandem with '--create'." )
       endIf
