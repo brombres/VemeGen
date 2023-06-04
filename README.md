@@ -16,10 +16,10 @@ Author    | Brom Bresenham
 ## New Installation
 
 1. Install [morlock.sh](https://morlock.sh)
-2. `morlock install brombres/vimage`
+2. `morlock install brombres/vemegen`
 
 ## Updating Existing Installation
-`morlock update shellview`
+`morlock update vemegen`
 
 # Usage
 
