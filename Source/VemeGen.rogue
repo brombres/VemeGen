@@ -3,8 +3,8 @@
 # May 25, 2023
 #================================================================================
 
-$define VERSION "1.0.2"
-$define DATE    "June 3, 2023"
+$define VERSION "1.1"
+$define DATE    "June 4, 2023"
 
 $requireRogue "2.17"
 
