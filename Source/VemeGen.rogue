@@ -42,7 +42,7 @@ class VemeGen [singleton]
     output_file  : File
     video_file   : File
     is_preview   : Logical
-    font_height  = 48
+    font_height  = 56
     frame_size   : XY
 
   METHODS
@@ -55,6 +55,10 @@ class VemeGen [singleton]
 
       if (command//options//preview)
         is_preview = true
+      endIf
+
+      if local font_size = command//options["font-size"]
+        font_height = font_size->Int32
       endIf
 
       if (command//options//help or command//args.count != 1)
@@ -220,10 +224,11 @@ class VemeGen [singleton]
     method parse_args( args:String[] )->Value
       local command = CommandLineParser().
       [
-        option( "--create",  &alias="-c" )
-        option( "--help",    &aliases=["-h","-?"] )
-        option( "--preview", &alias="-p" )
-        option( "--type=",   &alias="-t" )
+        option( "--create",     &alias="-c" )
+        option( "--font-size=", &alias="-f" )
+        option( "--help",       &aliases=["-h","-?"] )
+        option( "--preview",    &alias="-p" )
+        option( "--type=",      &alias="-t" )
       ].parse( args )
       return command
 
@@ -250,6 +255,10 @@ class VemeGen [singleton]
                |  --create
                |    Creates a new veme script. Defaults to type 'Custom' if no other '--type'
                |    is specified.
+               |
+               |  --font-size=<pixel-height>, -f <pixel-height>
+               |    Sets the height of the subtitle font in pixels relative to a 720-pixel frame
+               |    height. The default font size is 56.
                |
                |  --help, -h, -?
                |    Show this help text.
