@@ -14,7 +14,7 @@ $include Subtitle
 $include Template
 $include VideoTimestamp
 
-$include Templates
+$includeFolder Templates
 
 uses Console/CommandLineParser
 uses Graphics
