@@ -3,8 +3,8 @@ Command-line tool to generate vemes (video memes), including Hitler Reacts vemes
 
 About     | Current Release
 ----------|-----------------------
-Version   | 1.1
-Date      | June 4, 2023
+Version   | 1.2
+Date      | July 29, 2023
 Platforms | macOS
 License   | [MIT License](LICENSE)
 Author    | Brom Bresenham
