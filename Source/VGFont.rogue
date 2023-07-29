@@ -6,26 +6,26 @@ class VGFont
     method init( font_name:String, pixel_height:Int32 )
       font = BitmapFont( font_name, pixel_height )
 
-    method create_subtitled_frame( frame_size:XY, subtitle:String, outfile:File )
+    method create_subtitled_frame( frame_size:IntXY, subtitle:String, outfile:File )
       subtitle = word_wrap( subtitle, frame_size.x * 0.9, &even )
       local subtitle_size = font.measure( subtitle )
 
       local frame = Bitmap( frame_size )
-      local origin = Box( frame_size-XY(0,font.height) ).at(0.5,1.0)
+      local origin = IntBox( frame_size-IntXY(0,font.height) ).at(0.5,1.0)
       forEach (shadow_dy in 1..(font.height/10).or_larger(2))
-        local shadow_offset = XY( shadow_dy/2, shadow_dy )
+        local shadow_offset = IntXY( shadow_dy/2, shadow_dy )
         font.draw( subtitle, frame, origin+shadow_offset, Anchor.BOTTOM, AlphaFillBitmapBlitFn(Color.BLACK) )
       endForEach
       font.draw( subtitle, frame, origin, Anchor.BOTTOM )
       outfile.save( frame.to_png_bytes )
 
-    method measure( text:String, i1=0:Int32, i2=null:Int32? )->XY
+    method measure( text:String, i1=0:Int32, i2=null:Int32? )->IntXY
       i1 .= clamped( 0, text.count-1 )
 
       if (i2) i2 = i2.value.clamped( 0, text.count - 1)
       else    i2 = text.count - 1
 
-      if (i1 > i2.value) return XY(0,0)
+      if (i1 > i2.value) return IntXY(0,0)
 
       use buffer = StringPool
         buffer.reserve( (i2.value-i1)+1 )

@@ -43,7 +43,7 @@ class VemeGen [singleton]
     video_file   : File
     is_preview   : Logical
     font_height  = 56
-    frame_size   : XY
+    frame_size   : IntXY
 
   METHODS
     method init( args:String[] )
@@ -136,7 +136,7 @@ class VemeGen [singleton]
       if (System.is_linux) return "Garuda"
       else                 return "Arial"
 
-    method frame_size->XY
+    method frame_size->IntXY
       if (@frame_size.min > 0) return @frame_size
 
       local cmd = "ffprobe -v error -select_streams v -show_entries stream=width,height -of json $"(video_file.esc)
@@ -146,7 +146,7 @@ class VemeGen [singleton]
         if (info//streams.count)
           local w = info//streams[0]//width->Int32
           local h = info//streams[0]//height->Int32
-          @frame_size = XY( w, h )
+          @frame_size = IntXY( w, h )
           return @frame_size
         endIf
       endIf
